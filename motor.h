@@ -17,5 +17,8 @@ void LHMotorChannelAFallingFxn();
 //void LHMotorChannelARisingFxn();
 //void LHMotorChannelBFallingFxn();
 //void LHMotorChannelBRisingFxn();
+void  go_straight(float distance);
+void pid();
+void turn90();
 #endif /* MOTOR_H_ */
 

@@ -28,6 +28,7 @@ extern float speed_L;
 extern double error_R;
 extern double error_L;
 extern int output_speed_left;
+extern int distance_r;
 /*
  *  screenTaskFxn
  */
@@ -153,6 +154,11 @@ void screenTaskFxn (UArg arg0, UArg arg1)
                             RHS, y,
                             GRAPHICS_TRANSPARENT_TEXT);
         y += 20;
+        sprintf(test1_string, "distance_r = %d", distance_r);
+                Graphics_drawString(&g_sContext, test1_string,
+                GRAPHICS_AUTO_STRING_LENGTH,
+                                    LHS, y,
+                                    GRAPHICS_TRANSPARENT_TEXT);
         /*
                 sprintf(test1_string, "pwm_R = %lf", gap);
                 Graphics_drawString(&g_sContext, test1_string,

@@ -177,6 +177,7 @@ motor.obj: /Applications/ti/tirtos_msp43x_2_20_00_06/products/tidrivers_msp43x_2
 motor.obj: /Applications/ti/tirtos_msp43x_2_20_00_06/products/tidrivers_msp43x_2_20_00_08/packages/ti/drivers/PWM.h
 motor.obj: ../Board.h
 motor.obj: ../MSP_EXP432P401R.h
+motor.obj: /Users/wangqi/workspace_v7/CSRobot_01/motor.h
 
 ../motor.c: 
 /Applications/ti/xdctools_3_32_00_06_core/packages/xdc/std.h: 
@@ -355,3 +356,4 @@ motor.obj: ../MSP_EXP432P401R.h
 /Applications/ti/tirtos_msp43x_2_20_00_06/products/tidrivers_msp43x_2_20_00_08/packages/ti/drivers/PWM.h: 
 ../Board.h: 
 ../MSP_EXP432P401R.h: 
+/Users/wangqi/workspace_v7/CSRobot_01/motor.h: 

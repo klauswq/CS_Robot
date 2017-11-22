@@ -13,6 +13,7 @@
 
 /* Example/Board Header files */
 #include "Board.h"
+#include<motor.h>
 
 
 extern uint8_t distance_R[4];
@@ -20,6 +21,8 @@ extern uint8_t distance_L[4];
 extern float speed_R;
 extern float speed_L;
 float setpoint=7.7;
+float setpoint_r;
+float setpoint_l;
 int Rotation_R=0;
 int Rotation_L=0;
 Uint32 ooo=0;
@@ -63,27 +66,31 @@ float new_distance_left;
 float old_distance_left;
 float new_distance_forward;
 float recored_a_left_distance;
-
+int distance_r;
+int distance_l;
+PWM_Handle pwm1;
+    PWM_Handle pwm2 = NULL;
+    PWM_Handle pwm3;
+    PWM_Handle pwm4 = NULL;
+    PWM_Params params;
+    uint16_t   pwmPeriod = 3000;
 
 void RHMotorChannelAFallingFxn()
 {
     Rotation_R++;
-
+    distance_r++;
 }
 
 void LHMotorChannelAFallingFxn()
 {
     Rotation_L++;
+    distance_l++;
+
 }
 
 void pwmMotorFxn(UArg arg0, UArg arg1)
 {
-    PWM_Handle pwm1;
-    PWM_Handle pwm2 = NULL;
-    PWM_Handle pwm3;
-    PWM_Handle pwm4 = NULL;
-    PWM_Params params;
-    uint16_t   pwmPeriod = 3000;      // Period and duty in microseconds
+          // Period and duty in microseconds
 
     PWM_Params_init(&params);
     params.dutyUnits = PWM_DUTY_US;
@@ -132,73 +139,74 @@ void pwmMotorFxn(UArg arg0, UArg arg1)
     Task_sleep(40);
 
     /* Loop forever incrementing the PWM duty */
-    while (1) {
-        int i=2;
 
+        //int i=2;
+        int i = 1;
         switch (i)
-
         {
         case 1:
-            Kp_R=6;Ki_R=0.1;Kd_R=0.1;
-            Kp_L=6;Ki_L=0.1;Kd_L=0.1;
-        curr_T=Clock_getTicks();
-        dt=curr_T-pre_T;
-        dt=dt/1000;
-        error_R=setpoint-speed_R;
-        error_L=setpoint-speed_L;
-        integ_R=integ_R+error_R*dt;
-        integ_L=integ_L+error_L*dt;
-        diff_R=(error_R-pre_error_R)/dt;
-        diff_L=(error_L-pre_error_L)/dt;
-        duty_change_R=(Kp_R*(error_R+Ki_R*integ_R+Kd_R*diff_R));
-        duty_change_L=(Kp_L*(error_L+Ki_L*integ_L+Kd_L*diff_L));
-        pwm_R+=(int)(duty_change_R+0.5);
-        pwm_L+=(int)(duty_change_L+0.5);
+
+        go_straight(477.5);
+        turn90();
+        go_straight(177.5);
         PWM_setDuty(pwm1, 0);
         PWM_setDuty(pwm3, 0);
-        PWM_setDuty(pwm2, pwm_R);
-        PWM_setDuty(pwm4, pwm_L);
-        pre_error_R=error_R;
-        pre_error_L=error_L;
+        PWM_setDuty(pwm2, 0);
+        PWM_setDuty(pwm4, 0);
 
-        pre_T=curr_T;
-        Task_sleep(40);
-        break;
+            break;
 
         case 2:
-            pwm_R=560;
-            pwm_L=550;
+        while (1)
+        {
+            pwm_R = 560;
+            pwm_L = 550;
 
-            Kp_R=0.5;Ki_R=0;Kd_R=0;
-            Kp_L=0.8;Ki_L=0;Kd_L=0;
-            setpoint=120;
+            Kp_R = 0.5;
+            Ki_R = 0;
+            Kd_R = 0;
+            Kp_L = 0.8;
+            Ki_L = 0;
+            Kd_L = 0;
+            setpoint = 120;
 
-            curr_T=Clock_getTicks();
-            dt=curr_T-pre_T;
-            dt=dt/1000;
-            speed_R=(double)distance_R[1];
-            speed_L=(double)distance_L[2];
-            error_R=setpoint-speed_R;
-            error_L=setpoint-speed_L;
+            curr_T = Clock_getTicks();
+            dt = curr_T - pre_T;
+            dt = dt / 1000;
+            speed_R = (double) distance_R[1];
+            speed_L = (double) distance_L[2];
+            error_R = setpoint - speed_R;
+            error_L = setpoint - speed_L;
 
-            integ_R=integ_R+error_R*dt;
+            integ_R = integ_R + error_R * dt;
 
-            diff_R=(error_R-pre_error_R)/dt;
+            diff_R = (error_R - pre_error_R) / dt;
 
-            integ_L=integ_L+error_L*dt;
+            integ_L = integ_L + error_L * dt;
 
-            diff_L=(error_L-pre_error_L)/dt;
+            diff_L = (error_L - pre_error_L) / dt;
 
-            duty_change_R=(Kp_R*(error_R+Ki_R*integ_R+Kd_R*diff_R));
-            duty_change_L=(Kp_L*(error_L+Ki_L*integ_L+Kd_R*diff_L));
+            duty_change_R = (Kp_R * (error_R + Ki_R * integ_R + Kd_R * diff_R));
+            duty_change_L = (Kp_L * (error_L + Ki_L * integ_L + Kd_R * diff_L));
             /*pwm_R-=(int)(duty_change_L+0.5);
-            pwm_L-=(int)(duty_change_R+0.5);*/
+             pwm_L-=(int)(duty_change_R+0.5);*/
 
-
-             if (pwm_R<0){pwm_R=1;}
-             if (pwm_R>1000){pwm_R=1000;}
-             if (pwm_L<0){pwm_L=1;}
-             if (pwm_L>1000){pwm_L=1000;}
+            if (pwm_R < 0)
+            {
+                pwm_R = 1;
+            }
+            if (pwm_R > 1000)
+            {
+                pwm_R = 1000;
+            }
+            if (pwm_L < 0)
+            {
+                pwm_L = 1;
+            }
+            if (pwm_L > 1000)
+            {
+                pwm_L = 1000;
+            }
 
             if (distance_L[3] <= 150)
             {
@@ -270,57 +278,6 @@ void pwmMotorFxn(UArg arg0, UArg arg1)
                     Task_sleep(1000);
                 }
             }
-            //gaillllll
-           /* else if ((distance_R[2] > 250) && (distance_L[1] > 250))
-            {
-                if (distance_R[0] >= 250)
-                {
-                    PWM_setDuty(pwm1, 0);
-                    PWM_setDuty(pwm3, 0);
-                    PWM_setDuty(pwm2, 100);
-                    PWM_setDuty(pwm4, 500);
-                    Task_sleep(700);
-                }
-                else if (distance_L[3] >= 250)
-                {
-
-                    pwm_R -= (int) (duty_change_L + 0.5);
-                    pwm_L += (int) (duty_change_L + 0.5);
-                    PWM_setDuty(pwm1, 0);
-                    PWM_setDuty(pwm3, 0);
-                    PWM_setDuty(pwm2, 500);
-                    PWM_setDuty(pwm4, 100);
-                    Task_sleep(700);
-                }
-                if(distance_L[3]>250)
-                {
-                    PWM_setDuty(pwm1, 0);
-                    PWM_setDuty(pwm3, 0);
-                    PWM_setDuty(pwm2, 500);
-                    PWM_setDuty(pwm4, 100);
-                    Task_sleep(1000);
-                }
-
-            }*/
-           /* else if((distance_R[2]<=200)&&(distance_L[1]<=200))
-            {
-                if(distance_L[3]<=150)
-                    {
-                    PWM_setDuty(pwm1, 0);
-                    PWM_setDuty(pwm3, 0);
-                    PWM_setDuty(pwm2, 500);
-                    PWM_setDuty(pwm4, 100);
-                    }
-                else {
-                PWM_setDuty(pwm1, 0);
-                PWM_setDuty(pwm3, 0);
-                PWM_setDuty(pwm2, 100);
-                PWM_setDuty(pwm4, 500);
-                }
-                Task_sleep(1000);
-
-            }*/
-
 
             else
             {
@@ -329,43 +286,95 @@ void pwmMotorFxn(UArg arg0, UArg arg1)
                 PWM_setDuty(pwm2, 550);
                 PWM_setDuty(pwm4, 530);
             }
-            pre_error_R=error_R;
-            pre_error_L=error_L;
+            pre_error_R = error_R;
+            pre_error_L = error_L;
 
-            pre_T=curr_T;
+            pre_T = curr_T;
             Task_sleep(40);
             break;
-           // Input=(double)distance_L[2];
+        }
+
 
 
         default:
         i=4;
-        /*PWM_setDuty(pwm1, 0);
 
-        if (pwm2) {
-            PWM_setDuty(pwm2, 1500);
-        }
-
-        PWM_setDuty(pwm3, 0);
-
-        if (pwm2) {
-            PWM_setDuty(pwm4, 1500);
-        }
-        Task_sleep((UInt) arg0);*/
-
-        /*if((distance_R[2]<=100)||(distance_L[1]<=100))
-        {
-            PWM_setDuty(pwm1, 3000);
-            PWM_setDuty(pwm2, 3000);
-            PWM_setDuty(pwm3, 3000);
-            PWM_setDuty(pwm4, 3000);
-            break;
-        }*/
 
         }
 
-    }
+
 }
+void pid()
+{
+    Kp_R = 7;
+    Ki_R = 0.1;
+    Kd_R = 0.1;
+    Kp_L = 7;
+    Ki_L = 0.1;
+    Kd_L = 0.1;
+    curr_T = Clock_getTicks();
+    dt = curr_T - pre_T;
+    dt = dt / 1000;
+    error_R = setpoint_r - speed_R;
+    error_L = setpoint_l - speed_L;
+    integ_R = integ_R + error_R * dt;
+    integ_L = integ_L + error_L * dt;
+    diff_R = (error_R - pre_error_R) / dt;
+    diff_L = (error_L - pre_error_L) / dt;
+    duty_change_R = (Kp_R * (error_R + Ki_R * integ_R + Kd_R * diff_R));
+    duty_change_L = (Kp_L * (error_L + Ki_L * integ_L + Kd_L * diff_L));
+    pwm_R += (int) (duty_change_R + 0.5);
+    pwm_L += (int) (duty_change_L + 0.5);
+    PWM_setDuty(pwm1, 0);
+    PWM_setDuty(pwm3, 0);
+    PWM_setDuty(pwm2, pwm_R);
+    PWM_setDuty(pwm4, pwm_L);
+    pre_error_R = error_R;
+    pre_error_L = error_L;
+    pre_T = curr_T;
+    Task_sleep(40);
+}
+
+void go_straight(float distance)
+{
+    int start;
+    start = distance_r;
+    int distance_rot;
+    int diff;
+    distance_rot = (int) (distance / 37.699 * 1500.0); //37.699=12pi
+    do
+    {
+        setpoint_r = 9.6;
+        setpoint_l = 9.6;
+        pid();
+        diff = distance_r - start;
+        Task_sleep(40);
+    }
+    while (diff <= distance_rot);
+}
+
+void turn90()
+{
+    float delta;
+    int R0,L0,delta_rot,diffr,diffl;
+    R0=distance_r;
+    L0=distance_l;
+    delta = 14.137;//cm
+    delta_rot = (int) (delta / 37.699 * 1500.0);
+    do
+    {   setpoint_r = 12;
+        setpoint_l = 8;
+        pid();
+        diffr=distance_r-R0;
+        diffl=distance_l-L0;
+    }while((diffr-diffl)<=delta_rot);
+}
+
+
+
+
+
+
 
 
 
